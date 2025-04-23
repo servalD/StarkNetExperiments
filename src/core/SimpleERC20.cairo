@@ -1,9 +1,7 @@
 #[starknet::contract]
 mod SimpleERC20 {
     use starknet::{ContractAddress, get_caller_address};
-    use starknet::storage::{
-        Map,
-    };
+    use starknet::storage::Map;
     #[storage]
     struct Storage {
         _name: felt252,
@@ -133,6 +131,11 @@ mod SimpleERC20 {
 
             self._balance.write(from, from_balance - amount);
             self._total_supply.write(total_supply - amount);
+        }
+
+        fn transferOwner(ref self: ContractState, new_owner: ContractAddress) -> () {
+            assert!(get_caller_address() == self._owner.read(), "Only owner can transfer ownership");
+            self._owner.write(new_owner);
         }
     }
 }

@@ -22,6 +22,15 @@ deploy:
 	export CLASS_HASH=$$(starkli declare target/dev/token_$(CONTRACT).contract_class.json --network=sepolia -w | sed -n 's/.*\(0x[0-9a-f]\{64\}\).*/\1/p') && \
 	starkli deploy --network=sepolia $$CLASS_HASH $(PARAMS) 
 
+deploy-asset-counter:
+	source .env && \
+	make build &&\
+	export CLASS_HASH=$$(starkli declare target/dev/token_$(CONTRACT).contract_class.json --network=sepolia -w | sed -n 's/.*\(0x[0-9a-f]\{64\}\).*/\1/p') && \
+	export ASSET_ADDRESS=$$(starkli deploy --network=sepolia $$CLASS_HASH $(PARAMS) | sed -n 's/.*\(0x[0-9a-f]\{64\}\).*/\1/p' | tail -n 1) &&\
+	export CLASS_HASH=$$(starkli declare target/dev/token_Counter.contract_class.json --network=sepolia -w | sed -n 's/.*\(0x[0-9a-f]\{64\}\).*/\1/p') && \
+	export COUNTER_ADDRESS=$$(starkli deploy --network=sepolia $$CLASS_HASH $$ASSET_ADDRESS | sed -n 's/.*\(0x[0-9a-f]\{64\}\).*/\1/p' | tail -n 1) &&\
+	starkli invoke $$ASSET_ADDRESS transferOwner $$COUNTER_ADDRESS --network=sepolia -w
+
 $(CONTRACT):
 	@:
 
