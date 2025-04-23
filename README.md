@@ -24,9 +24,13 @@ make deploy <contract> <param1> <param2> ...
 Example:
 
 ```bash
-make deploy SimpleERC20 0x0777F8DeF67b26D1414Fd176B7d4cc57CED891070fCBDA4615540F61bc50dB46 $(starkli to-cairo-string "TicTac") $(starkli to-cairo-string "TT") 10000 0
+make deploy SimpleERC20 <deployer-address> $(starkli to-cairo-string "TicTac") $(starkli to-cairo-string "TT") 10000 0
 ```
 
+Deploy completely the Asset and the Counter and link the counter as asset owner (retrieves ClassHash in the logs)
+```bash
+make deploy-asset-counter SimpleERC20 <deployer-address> $(starkli to-cairo-string "CounterAsset") $(starkli to-cairo-string "CA") 0 0
+```
 > ⚠️ Deployment parameters (`PARAMS`) are the constructor arguments.
 
 ## Notes

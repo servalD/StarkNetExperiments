@@ -12,6 +12,7 @@ pub trait ISimpleERC20<TContractState> {
     fn transferFrom(ref self: TContractState, from: ContractAddress, to: ContractAddress, amount: u256) -> ();
     fn mint(ref self: TContractState, to: ContractAddress, amount: u256) -> ();
     fn burn(ref self: TContractState, from: ContractAddress, amount: u256) -> ();
+    fn transferOwner(ref self: TContractState, new_owner: ContractAddress) -> ();
 }
 
 
