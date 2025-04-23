@@ -2,8 +2,8 @@ use starknet::ContractAddress;
 
 #[starknet::interface]
 pub trait ISimpleERC20<TContractState> {
-    fn name(self: @TContractState) -> ByteArray;
-    fn symbol(self: @TContractState) -> ByteArray;
+    fn name(self: @TContractState) -> felt252;
+    fn symbol(self: @TContractState) -> felt252;
     fn totalSupply(self: @TContractState) -> u256;
     fn balanceOf(self: @TContractState, address: ContractAddress) -> u256;
     fn transfer(ref self: TContractState, to: ContractAddress, amount: u256) -> ();

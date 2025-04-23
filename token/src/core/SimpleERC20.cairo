@@ -6,8 +6,8 @@ mod SimpleERC20 {
     };
     #[storage]
     struct Storage {
-        _name: ByteArray,
-        _symbol: ByteArray,
+        _name: felt252,
+        _symbol: felt252,
         _total_supply: u256,
         _balance: Map<ContractAddress, u256>,
         _allowance: Map<(ContractAddress, ContractAddress), u256>,
@@ -44,7 +44,7 @@ mod SimpleERC20 {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, owner: ContractAddress, name: ByteArray, symbol: ByteArray, initial_supply: u256) {
+    fn constructor(ref self: ContractState, owner: ContractAddress, name: felt252, symbol: felt252, initial_supply: u256) {
         self._name.write(name);
         self._symbol.write(symbol);
         self._total_supply.write(initial_supply);
@@ -55,11 +55,11 @@ mod SimpleERC20 {
     #[abi(embed_v0)]
     impl SimpleERC20Impl of token::interfaces::SimpleERC20::ISimpleERC20<ContractState> {
 
-        fn name(self: @ContractState) -> ByteArray {
+        fn name(self: @ContractState) -> felt252 {
             self._name.read()
         }
 
-        fn symbol(self: @ContractState) -> ByteArray {
+        fn symbol(self: @ContractState) -> felt252 {
             self._symbol.read()
         }
 
