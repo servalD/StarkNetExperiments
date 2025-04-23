@@ -1,6 +1,6 @@
 #[starknet::contract]
 mod SimpleERC20 {
-    use starknet::{ContractAddress, ClassHash, get_caller_address};
+    use starknet::{ContractAddress, get_caller_address};
     use starknet::storage::{
         Map,
     };

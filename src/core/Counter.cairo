@@ -1,6 +1,6 @@
 #[starknet::contract]
-mod Exemple {
-    use starknet::{ContractAddress, ClassHash, get_caller_address};
+mod Counter {
+    // use starknet::{ContractAddress, ClassHash, get_caller_address};
     #[storage]
     struct Storage {
         value: u256,
@@ -23,7 +23,7 @@ mod Exemple {
     }
 
     #[abi(embed_v0)]
-    impl ExempleImpl of counter::interfaces::exemple::IExemple<ContractState> {
+    impl CounterImpl of token::interfaces::Counter::ICounter<ContractState> {
 
         fn get_value(self: @ContractState) -> u256 {
             self.value.read()
