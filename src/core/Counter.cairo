@@ -3,12 +3,15 @@ use token::interfaces::SimpleERC20::{ISimpleERC20Dispatcher, ISimpleERC20Dispatc
 #[starknet::contract]
 mod Counter {
     use starknet::{ContractAddress, get_caller_address};
+    use starknet::storage::Map;
     use super::{ISimpleERC20Dispatcher, ISimpleERC20DispatcherTrait};
 
     #[storage]
     struct Storage {
         value: u256,
         asset: ContractAddress,
+        // Strange sheme using value_account
+        // value_account: Map<ContractAddress, u256>,
     }
     #[event]
     #[derive(Drop, starknet::Event)]
@@ -41,6 +44,9 @@ mod Counter {
             let val = self.value.read() + 1;
 
             self.value.write(val);
+            // Strange sheme using value_account
+            // let caller_balance = self.value_account.read(caller);
+            // self.value_account.write(caller, caller_balance + 1);
 
             ISimpleERC20Dispatcher{ contract_address: self.asset.read() }
                 .mint(caller, val);
@@ -55,12 +61,16 @@ mod Counter {
 
             let val = self.value.read();
             let caller_balance = asset.balanceOf(caller);
+            // Strange sheme using value_account
+            // let caller_counter = self.value_account.read(caller);
+            // assert!(caller_counter > 0, "The caller has no counter and should increase it first");
 
-            assert!(caller_balance >= val, "Insufficient balance");
+            assert!(caller_balance >= val, "The caller has insufficient balance on the underlying asset. (Increase before)");
 
             asset.burn(caller, val);
             
             self.value.write(val - 1);
+            // self.value_account.write(caller, caller_counter - 1);
 
             self.emit(Update { value: val, account: caller });
             val
