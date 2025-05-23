@@ -37,3 +37,6 @@ make deploy-asset-counter SimpleERC20 <deployer-address> $(starkli to-cairo-stri
 
 - The contract is declared and deployed on the **Sepolia** network.
 - The `CLASS_HASH` is automatically extracted after declaration.
+
+[Sepolia explorer](https://sepolia.starkscan.co/)
+[]

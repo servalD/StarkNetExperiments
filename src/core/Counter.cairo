@@ -1,13 +1,15 @@
 use token::interfaces::SimpleERC20::{ISimpleERC20Dispatcher, ISimpleERC20DispatcherTrait};
 
-#[starknet::contract]
-mod Counter {
+#[starknet::component]
+pub mod counter_component {
     use starknet::{ContractAddress, get_caller_address};
-    use starknet::storage::Map;
     use super::{ISimpleERC20Dispatcher, ISimpleERC20DispatcherTrait};
+    use starknet::storage::{
+        Map, StoragePointerReadAccess, StoragePointerWriteAccess, StoragePathEntry,
+    };
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         value: u256,
         asset: ContractAddress,
         // Strange sheme using value_account
@@ -15,31 +17,36 @@ mod Counter {
     }
     #[event]
     #[derive(Drop, starknet::Event)]
-    enum Event {
+    pub enum Event {
         Update: Update,
     }
 
     #[derive(Drop, starknet::Event)]
-    struct Update {
+    pub struct Update {
         #[key]
         account: ContractAddress,
         value: u256,
     }
 
-    #[constructor]
-    fn constructor(ref self: ContractState, asset: ContractAddress) {
-        self.asset.write(asset);
-        self.value.write(0);
+     #[generate_trait]
+    pub impl CounterInternalImpl<
+        TContractState, +HasComponent<TContractState>,
+    > of CounterInternalTrait<TContractState> {
+        fn _init(ref self: ComponentState<TContractState>, asset: ContractAddress) {
+            self.asset.write(asset);
+            self.value.write(0);
+        }
     }
+    
 
-    #[abi(embed_v0)]
-    impl CounterImpl of token::interfaces::Counter::ICounter<ContractState> {
+    #[embeddable_as(Counter)]
+    impl CounterImpl<TContractState, +HasComponent<TContractState>> of token::interfaces::Counter::ICounter<ComponentState<TContractState>> {
 
-        fn get_value(self: @ContractState) -> u256 {
+        fn get_value(self: @ComponentState<TContractState>) -> u256 {
             self.value.read()
         }
 
-        fn increase(ref self: ContractState) -> u256{
+        fn increase(ref self: ComponentState<TContractState>) -> u256{
             let caller = get_caller_address();
             let val = self.value.read() + 1;
 
@@ -55,7 +62,7 @@ mod Counter {
             val
         }
 
-        fn decrease(ref self: ContractState) -> u256{
+        fn decrease(ref self: ComponentState<TContractState>) -> u256{
             let caller = get_caller_address();
             let asset = ISimpleERC20Dispatcher{ contract_address: self.asset.read() };
 
@@ -76,4 +83,36 @@ mod Counter {
             val
         }
     }
+}
+
+#[starknet::contract]
+pub mod Counter {
+    use super::counter_component;
+    use starknet::{ContractAddress};
+
+    #[constructor]
+    fn constructor(ref self: ContractState, asset: ContractAddress) {
+        self.counter._init(asset);
+    }
+
+    component!(path: counter_component, storage: counter, event: CounterEvent);
+
+    #[abi(embed_v0)]
+    impl CounterImpl = counter_component::Counter<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        counter: counter_component::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        CounterEvent: counter_component::Event,
+    }
+
+    impl CounterInternalImpl = counter_component::CounterInternalImpl<ContractState>;
+     
+    
 }
